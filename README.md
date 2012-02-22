@@ -20,14 +20,14 @@ Cheat Sheet
 
     SQL   | Horror | Mnemonic
     ------+--------+--------------------------
-    =     | +=     |
-    !=    | -=     | opposite of equal
-    in    | |=     | this OR that OR the other
-    range | /=     |
-    >     | >>     |
-    >=    | >>=    |
-    <     | <<     |
-    <=    | <<=    |
+    =     | ==     |
+    !=    | !=     | opposite of equal
+    in    | <<=    |
+    range | <<     |
+    >     | >      |
+    >=    | >=     |
+    <     | <      |
+    <=    | <=     |
     LIKE  | *=     | wildcard
     regex | **=    | really wildcard
     NOT   | ~      |
