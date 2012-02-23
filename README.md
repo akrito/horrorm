@@ -6,14 +6,16 @@ Overriding arithmetic methods to generate SQL is horrible.
 API
 ---
 
-Maybe we can hijack Q (and F) objects from Peewee and do something like:
+Maybe we can hijack Q (and F and R) objects from Peewee and do something like:
 
-    from horrorm import T, Q
-    [r.id for r in T('business_business').select(Q.id |= [1,2,3])]
-    [r.id for r in T('business_business').select(Q.id = 5)]
+    from horrorm import R, T
+    T('business_business').select(R.id <<= [1,2,3])
+    T('business_business').select(R.id == 5)
     
-    q = (Q.id -= 5) | (Q.name *= 'Al%')
-    [r.id for r in T('business_business').select(q)]
+    q = (Q.id != 5) | (Q.name *= 'Al%')
+    T('business_business').select(q)
+
+    T('users', 'blogs').select(F.users.id == F.blogs.user_id)
 
 Cheat Sheet
 -----------
