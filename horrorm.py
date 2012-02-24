@@ -130,5 +130,4 @@ class T(object):
         pass
 
     def delete(self, where):
-        pass
-        
+        return self.con('DELETE FROM %s WHERE %s' % (self.table_name, str(where)), *where.params())
