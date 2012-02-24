@@ -116,12 +116,18 @@ class T(object):
     A table generator from a given DB
     """
     
-    def __init__(self, con, table_name):
+    def __init__(self, con, *table_names):
         self.con = con
-        self.table_name = table_name
+        self.table_names = table_names
+
+    def __mul__(self, rhs):
+        return T(self.table_names + [rhs])
+
+    def _joined_names(self):
+        return ', '.join(self.table_names)
 
     def select(self, where):
-        return self.con('SELECT * FROM %s WHERE %s' % (self.table_name, str(where)), *where.params())
+        return self.con('SELECT * FROM %s WHERE %s' % (self._joined_names(), str(where)), *where.params())
 
     def update(self, *args, **kwargs):
         pass
@@ -130,4 +136,4 @@ class T(object):
         pass
 
     def delete(self, where):
-        return self.con('DELETE FROM %s WHERE %s' % (self.table_name, str(where)), *where.params())
+        return self.con('DELETE FROM %s WHERE %s' % (self.joined_names(), str(where)), *where.params())
