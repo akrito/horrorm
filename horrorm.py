@@ -49,6 +49,9 @@ class F(object):
     def __ipow__(self, rhs):
         pass
 
+    def __getattr__(self, attr):
+        return F('%s.%s' % (self.field_name, attr))
+
 
 class Where(object):
 
