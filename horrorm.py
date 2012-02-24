@@ -1,4 +1,4 @@
-
+from cursors import connect
 
 class _F(object):
     """
@@ -12,7 +12,7 @@ f = _F()
 class F(object):
 
     """
-    Field
+    Fields override arithmetic to generate conditions? Horrible.
     """
 
     def __init__(self, field_name):
@@ -22,7 +22,7 @@ class F(object):
         return self.field_name
 
     def __eq__(self, rhs):
-        return Where(self, '==', rhs)
+        return Where(self, '=', rhs)
 
     def __ne__(self, rhs):
         return Where(self, '!=', rhs)
@@ -32,22 +32,24 @@ class F(object):
         return Where(self, 'IN', rhs)
     
     def __gt__(self, rhs):
-        pass
+        return Where(self, '>', rhs)
 
     def __gte__(self, rhs):
-        pass
+        return Where(self, '>=', rhs)
 
     def __lt__(self, rhs):
-        pass
+        return Where(self, '<', rhs)
 
     def __lte__(self, rhs):
-        pass
+        return Where(self, '<=', rhs)
 
     def __imul__(self, rhs):
-        pass
+        # *=
+        return Where(self, 'LIKE', rhs)
 
     def __ipow__(self, rhs):
-        pass
+        # **=
+        return Where(self, '~', rhs)
 
     def __getattr__(self, attr):
         return F('%s.%s' % (self.field_name, attr))
@@ -61,6 +63,7 @@ class Where(object):
         self.rhs = rhs
 
     def __neg__(self):
+        # ~
         return Where(None, 'NOT', self)
 
     def __and__(self, rhs):
@@ -93,12 +96,32 @@ class Where(object):
         
         return lhs_params + rhs_params
 
+
+class D(object):
+    """
+    A Database. Attributes are tables.
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.con = connect(*args, **kwargs)
+
+    # Should we use slots?
+
+    def __getattr__(self, table_name):
+        return T(self.con, table_name)
+
+
 class T(object):
     """
-    A table
+    A table generator from a given DB
     """
+    
+    def __init__(self, con, table_name):
+        self.con = con
+        self.table_name = table_name
+
     def select(self, where):
-        pass
+        return self.con('SELECT * FROM %s WHERE %s' % (self.table_name, str(where)), *where.params())
 
     def update(self, *args, **kwargs):
         pass
@@ -108,3 +131,4 @@ class T(object):
 
     def delete(self, where):
         pass
+        
