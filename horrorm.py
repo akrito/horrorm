@@ -1,16 +1,16 @@
 from cursors import connect
 
-class _F(object):
+class F(object):
     """
     A wrapper around F(name). Using __getattr__ as a constructor? Horrible.
     """
+
     def __getattr__(self, field_name):
-        return F(field_name)
+        return Field(field_name)
 
-f = _F()
+f = F()
 
-class F(object):
-
+class Field(object):
     """
     Fields override arithmetic to generate conditions? Horrible.
     """
@@ -52,7 +52,7 @@ class F(object):
         return Where(self, '~', rhs)
 
     def __getattr__(self, attr):
-        return F('%s.%s' % (self.field_name, attr))
+        return Field('%s.%s' % (self.field_name, attr))
 
 
 class Where(object):
@@ -83,13 +83,13 @@ class Where(object):
     def params(self):
         if isinstance(self.lhs, Where):
             lhs_params = self.lhs.params()
-        elif isinstance(self.lhs, F):
+        elif isinstance(self.lhs, Field):
             lhs_params = []
         else:
             lhs_params = [self.lhs]
         if isinstance(self.rhs, Where):
             rhs_params = self.rhs.params()
-        elif isinstance(self.rhs, F):
+        elif isinstance(self.rhs, Field):
             rhs_params = []
         else:
             rhs_params = [self.rhs]
@@ -105,7 +105,7 @@ class D(object):
     def __init__(self, *args, **kwargs):
         self.con = connect(*args, **kwargs)
 
-    # Should we use slots?
+    # Should we use slots so tab-completion works?
 
     def __getattr__(self, table_name):
         return T(self.con, table_name)
@@ -121,19 +121,36 @@ class T(object):
         self.table_names = table_names
 
     def __mul__(self, rhs):
-        return T(self.table_names + [rhs])
+        new_names = self.table_names + rhs.table_names
+        return T(self.con, *new_names)
 
-    def _joined_names(self):
+    def _joined_tables(self):
         return ', '.join(self.table_names)
 
-    def select(self, where):
-        return self.con('SELECT * FROM %s WHERE %s' % (self._joined_names(), str(where)), *where.params())
+    def select(self, *args):
+        fields = []
+        where = None
+        for elm in args:
+            if isinstance(elm, Field):
+                fields.append(str(elm))
+            elif isinstance(elm, Where):
+                where = elm
+        joined_fields = ', '.join(fields) or '*'
+
+        if where is None:
+            return self.con('SELECT %s FROM %s' % (joined_fields, self._joined_tables()))
+        else:
+            return self.con('SELECT %s FROM %s WHERE %s' % (joined_fields, self._joined_tables(), str(where)), *where.params())
 
     def update(self, *args, **kwargs):
+        # TODO: I have no idea what a nice API for this would be.
         pass
 
     def insert(self, *args, **kwargs):
+        # TODO: I have no idea what a nice API for this would be.
         pass
 
     def delete(self, where):
-        return self.con('DELETE FROM %s WHERE %s' % (self.joined_names(), str(where)), *where.params())
+        # This will error if you've specified multiple tables, but that's
+        # probably better than blithely just deleting from the first one.
+        return self.con('DELETE FROM %s WHERE %s' % (self.joined_tables(), str(where)), *where.params())
