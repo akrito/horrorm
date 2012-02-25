@@ -3,17 +3,15 @@ Horrorm - A Horrible ORM
 
 Overriding arithmetic methods to generate SQL is horrible.
 
-API
----
+Usage
+-----
 
-Maybe we can hijack Q (and F and R) objects from Peewee and do something like:
-
-    from horrorm import R, T
-    T('business_business').select(R.id <<= [1,2,3])
-    T('business_business').select(R.id == 5)
+    from horrorm import D, f
+    d = D('foodb')
+    d.business_business.select(f.id == 2)
     
-    q = (Q.id != 5) | (Q.name *= 'Al%')
-    T('business_business').select(q)
+    q = (f.id != 5) | (f.name *= 'Al%')
+    d.business_business.select(q)
 
     T('users', 'blogs').select(F.users.id == F.blogs.user_id)
 
@@ -44,7 +42,7 @@ How it Works
 Django's and Peewee's <code>|</code> operator. These take the place of kwargs
 like <code>id__exact=5</code>.
 
-<code>t = T('foo').select(Q.id += 5)</code> selects rows from "foo" where "id" is 5.
+<code>t = T('foo').select(Q.id == 5)</code> selects rows from "foo" where "id" is 5.
 
 TODO
 ----
