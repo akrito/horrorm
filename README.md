@@ -13,7 +13,7 @@ Usage
     q = (f.id != 5) | (f.name *= 'Al%')
     d.business_business.select(q)
 
-    T('users', 'blogs').select(F.users.id == F.blogs.user_id)
+    (d.users * d.blogs).select(f.users.id == f.blogs.user_id)
 
 Cheat Sheet
 -----------
@@ -28,7 +28,6 @@ Cheat Sheet
     <     | <      |
     <=    | <=     |
     LIKE  | *=     | wildcard
-    regex | **=    | really wildcard
     NOT   | ~      |
     AND   | &      |
     OR    | |      |
