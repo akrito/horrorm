@@ -22,8 +22,7 @@ Cheat Sheet
     ------+--------+--------------------------
     =     | ==     |
     !=    | !=     | opposite of equal
-    in    | <<=    |
-    range | <<     |
+    in    | <<     |
     >     | >      |
     >=    | >=     |
     <     | <      |
@@ -34,22 +33,3 @@ Cheat Sheet
     AND   | &      |
     OR    | |      |
     JOIN  | *      |
-
-How it Works
-------------
-
-<code>Q.field</code> has overridden arithmetic operations that act similarly to
-Django's and Peewee's <code>|</code> operator. These take the place of kwargs
-like <code>id__exact=5</code>.
-
-<code>t = T('foo').select(Q.id == 5)</code> selects rows from "foo" where "id" is 5.
-
-TODO
-----
-
-All of it, except the README.
-
-Bugs
-----
-
-No code = no bugs.
