@@ -37,22 +37,18 @@ class Field(object):
     def __gt__(self, rhs):
         return Where(self, '>', rhs)
 
-    def __gte__(self, rhs):
+    def __ge__(self, rhs):
         return Where(self, '>=', rhs)
 
     def __lt__(self, rhs):
         return Where(self, '<', rhs)
 
-    def __lte__(self, rhs):
+    def __le__(self, rhs):
         return Where(self, '<=', rhs)
 
-    def __imul__(self, rhs):
-        # *=
+    def __mod__(self, rhs):
+        # %
         return Where(self, 'LIKE', rhs)
-
-    def __ipow__(self, rhs):
-        # **=
-        return Where(self, '~', rhs)
 
     def __getattr__(self, attr):
         return Field('%s.%s' % (self.field_name, attr))
@@ -65,7 +61,7 @@ class Where(object):
         self.connector = connector
         self.rhs = rhs
 
-    def __neg__(self):
+    def __invert__(self):
         # ~
         return Where(None, 'NOT', self)
 
@@ -76,20 +72,21 @@ class Where(object):
         return Where(self, 'OR', rhs)
 
     def sql(self, param):
-        if isinstance(self.rhs, Where):
+        if isinstance(self.rhs, Where) or isinstance(self.rhs, Field):
             rhs_str = self.rhs.sql(param)
         else:
             rhs_str = param
-        return '(%s %s %s)' % (self.lhs.sql(param), self.connector, rhs_str)
+        if self.lhs is None:
+            return '(%s %s)' % (self.connector, rhs_str)
+        else:
+            return '(%s %s %s)' % (self.lhs.sql(param), self.connector, rhs_str)
 
     def params(self):
         if isinstance(self.lhs, Where):
             lhs_params = self.lhs.params()
-        elif isinstance(self.lhs, Field):
-            lhs_params = []
         else:
-            lhs_params = [self.lhs]
-        if isinstance(self.rhs, Where):
+            lhs_params = []
+        if isinstance(self.rhs, Where) or self.rhs is None:
             rhs_params = self.rhs.params()
         elif isinstance(self.rhs, Field):
             rhs_params = []
@@ -109,6 +106,9 @@ class D(object):
         for table in self.con.tables():
             # Better than overriding __getattr__(), because we get tab completion
             setattr(self, table[0], T(self.con, table[0]))
+
+    def __getattr__(self, table_name):
+        return T(self.con, table_name)
 
 
 class T(object):
@@ -143,19 +143,13 @@ class T(object):
         else:
             return self.con('SELECT %s FROM %s WHERE %s' % (joined_fields, self._joined_tables(), where.sql(self.param)), *where.params())
 
-    def update(self, *args, **kwargs):
-        # TODO: I have no idea what a nice API for this would be.
-        # update(fields=[id, name], values=[5, 'alex'], where)
-        # update(dict or namedtuple, where)
-        pass
+    # def update(self, mapping, where=None):
 
-    def insert(self, *args, **kwargs):
-        # TODO: I have no idea what a nice API for this would be.
-        # insert(fields=[id, name], values=[5, 'alex'])
-        # insert(dict or namedtuple, where)
-        pass
+
+    # def insert(self, mapping, where=None):
+
 
     def delete(self, where):
         # This will error if you've specified multiple tables, but that's
         # probably better than blithely just deleting from the first one.
-        return self.con('DELETE FROM %s WHERE %s' % (self.joined_tables(), where.sql(self.param)), *where.params())
+        return self.con('DELETE FROM %s WHERE %s' % (self._joined_tables(), where.sql(self.param)), *where.params())
