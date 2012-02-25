@@ -106,10 +106,9 @@ class D(object):
 
     def __init__(self, *args, **kwargs):
         self.con = connect(*args, **kwargs)
-        # Should we create attributes here so tab-completion works in IPython?
-
-    def __getattr__(self, table_name):
-        return T(self.con, table_name)
+        for table in self.con.tables():
+            # Better than overriding __getattr__(), because we get tab completion
+            setattr(self, table[0], T(self.con, table[0]))
 
 
 class T(object):
