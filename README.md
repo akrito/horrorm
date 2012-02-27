@@ -3,6 +3,8 @@ Horrorm - A Horrible ORM
 
 Overriding arithmetic methods to generate SQL is horrible.
 
+[![Build Status](https://secure.travis-ci.org/akrito/horrorm.png?branch=master)](http://travis-ci.org/akrito/horrorm)
+
 Usage
 -----
 
