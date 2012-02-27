@@ -32,7 +32,7 @@ class Field(object):
 
     def __lshift__(self, rhs):
         # <<
-        return Where(self, 'IN', rhs)
+        return Where(self, 'IN', InClause(rhs))
     
     def __gt__(self, rhs):
         return Where(self, '>', rhs)
@@ -55,6 +55,18 @@ class Field(object):
 
     def params(self):
         return []
+
+
+class InClause(object):
+    def __init__(self, iterable):
+        self.iterable = iterable
+
+    def sql(self, param):
+        return '(%s)' % ', '.join([param for i in self.iterable])
+
+    def params(self):
+        return self.iterable
+
 
 class Where(object):
 
