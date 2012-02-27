@@ -53,6 +53,8 @@ class Field(object):
     def __getattr__(self, attr):
         return Field('%s.%s' % (self.field_name, attr))
 
+    def params(self):
+        return []
 
 class Where(object):
 
@@ -72,7 +74,7 @@ class Where(object):
         return Where(self, 'OR', rhs)
 
     def sql(self, param):
-        if isinstance(self.rhs, Where) or isinstance(self.rhs, Field):
+        if hasattr(self.rhs, 'sql'):
             rhs_str = self.rhs.sql(param)
         else:
             rhs_str = param
@@ -82,14 +84,12 @@ class Where(object):
             return '(%s %s %s)' % (self.lhs.sql(param), self.connector, rhs_str)
 
     def params(self):
-        if isinstance(self.lhs, Where):
+        if hasattr(self.lhs, 'params'):
             lhs_params = self.lhs.params()
         else:
             lhs_params = []
-        if isinstance(self.rhs, Where) or self.rhs is None:
+        if hasattr(self.rhs, 'params'):
             rhs_params = self.rhs.params()
-        elif isinstance(self.rhs, Field):
-            rhs_params = []
         else:
             rhs_params = [self.rhs]
         
