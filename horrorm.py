@@ -131,6 +131,7 @@ class T(object):
     def select(self, *args):
         fields = []
         where = None
+        # Parse positional args. Maybe we should use kwargs instead.
         for elm in args:
             if isinstance(elm, Field):
                 fields.append(elm.sql(self.param))
