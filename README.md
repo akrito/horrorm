@@ -1,9 +1,9 @@
-Horrorm - A Horrible ORM
-========================
+Horrorm - The Horrible ORM That's Hard to Pronounce
+===================================================
 
 Overriding arithmetic methods to generate SQL is horrible.
 
-[![Build Status](https://secure.travis-ci.org/akrito/horrorm.png?branch=master)](http://travis-ci.org/akrito/horrorm)
+Is it safe? [![Build Status](https://secure.travis-ci.org/akrito/horrorm.png?branch=master)](http://travis-ci.org/akrito/horrorm)
 
 Usage
 -----
