@@ -1,1 +1,1 @@
--e git+git@github.com:akrito/cursors.git#cursors
+-e git+git@github.com:akrito/cursors.git#egg=cursors
