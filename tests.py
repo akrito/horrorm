@@ -12,6 +12,7 @@ CREATE TABLE books (id, author, title);
 INSERT INTO books (id, author, title) VALUES (1, 2, 'puppies');
 INSERT INTO books (id, author, title) VALUES (2, 2, 'oslo');
 INSERT INTO books (id, author, title) VALUES (3, 3, 'nerds');
+INSERT INTO books (id, author, title) VALUES (4, 3, NULL);
 """
 
 DESTROY_SQL = """
@@ -85,9 +86,17 @@ def test_not():
 def test_delete():
     with sqlite() as d:
         d.books.delete(f.title == 'nerds')
-        eq_(len(d.books.select()), 2)
+        eq_(len(d.books.select()), 3)
 
 def test_db_attributes():
     with sqlite('test.db') as d1:
         d2 = D('test.db')
         eq_(hasattr(d2, 'books'), True)
+
+def test_null():
+    with sqlite() as d:
+        eq_(d.books.select(f.title == None)[0].id, 4)
+
+def test_not_null():
+    with sqlite() as d:
+        eq_(len(d.books.select(f.title != None)), 3)

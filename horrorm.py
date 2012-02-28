@@ -25,10 +25,18 @@ class Field(object):
         return self.field_name
 
     def __eq__(self, rhs):
-        return Where(self, '=', rhs)
+        connector = '='
+        if rhs is None:
+            rhs = NULL()
+            connector = 'IS'
+        return Where(self, connector, rhs)
 
     def __ne__(self, rhs):
-        return Where(self, '!=', rhs)
+        connector = '!='
+        if rhs is None:
+            rhs = NULL()
+            connector = 'IS NOT'
+        return Where(self, connector, rhs)
 
     def __lshift__(self, rhs):
         # <<
@@ -66,6 +74,14 @@ class InClause(object):
 
     def params(self):
         return self.iterable
+
+
+class NULL(object):
+    def sql(self, param):
+        return 'NULL'
+
+    def params(self):
+        return []
 
 
 class Where(object):
